@@ -14,7 +14,7 @@ function init() {
   const height = 20
 
   // * Game variables
-  let playerTetriminoPosition = 0
+  let playerTetriminoPosition = []
 
 
   // * Function to create the grid
@@ -45,22 +45,49 @@ function init() {
 
   function createTetrimino() {
     let nextShape = []
-    nextShape = tetriminos[Math.round(Math.random() * (tetriminos.length - 1))]
+    nextShape = tetriminos[Math.floor(Math.random() * (tetriminos.length - 1))]
     nextShape.forEach(cell => {
       cells[cell].classList.add('playertetrimino')
+      playerTetriminoPosition.push(cell)
     })
   }
   
+  function handleKeyDown(event) {
+    playerTetriminoPosition.forEach(cell => {
+      cells[cell].classList.remove('playertetrimino')
+    })
+    // const x = pikaPosition % width
+    // const y = Math.floor(pikaPosition / width)
+    switch (event.keyCode) { //
+      case 39: // * Moving right
+        for (let i = 0; i < playerTetriminoPosition.length; i++) {
+          playerTetriminoPosition[i] = playerTetriminoPosition[i] + 1
+        }
+        break
+      case 37: // * Moving left
+        for (let i = 0; i < playerTetriminoPosition.length; i++) {
+          playerTetriminoPosition[i] = playerTetriminoPosition[i] - 1
+        }
+        break
+      case 40: // * Moving down
+        for (let i = 0; i < playerTetriminoPosition.length; i++) {
+          playerTetriminoPosition[i] = playerTetriminoPosition[i] + 10
+        }
+        break
+      default:
+        console.log('invalid key do nothing')
+    }
+    playerTetriminoPosition.forEach(cell => {
+      cells[cell].classList.add('playertetrimino')
+    })
+  }
 
 
   createGrid()
 
   createTetrimino()
 
-
-
-
-
+  document.addEventListener('keydown', handleKeyDown)
 
 
 }
