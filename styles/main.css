@@ -33,11 +33,10 @@ body {
   width: 40px;
 }
 
-.grid div.playerblock {
+.grid div.playertetrimino {
   background-color: aqua;
-  cursor: pointer;
 }
 
-.grid div.fixed {
+.grid div.droppedtetrimino {
   background-color: black;
 }
