@@ -11,13 +11,13 @@ function init() {
 
   // * Grid variables
   const width = 10
-  const height = 20
+  const height = 23
   
-  // * Attempting to create array of rows, and columns of left/right edge
+  // * Arrays for checks
 
   let rowArray = []
-  let leftEdgeArray = []
-  let rightEdgeArray = []
+  let blockedArray = []
+  let rowToClear = []
 
   // * Game variables
   let playerTetriminoPosition = []
@@ -31,32 +31,31 @@ function init() {
     for (let i = 0; i < width * height; i++) {
       const cell = document.createElement('div')
       grid.appendChild(cell)
-      cell.textContent = i
       cells.push(cell)
+      cell.textContent = i
     }
     for (let i = 0; i < 20; i++) {
       rowArray.push(cells.slice(i * 10, ((i * 10) + 10)))
     }
     for (let i = 0; i < 20; i++) {
-      leftEdgeArray.push(cells[i * 10])
+      cells[i].classList.remove('div')
+      cells[i].classList.add('topandbottom')
     }
-    for (let i = 0; i < 20; i++) {
-      rightEdgeArray.push(cells[(i * 10) + 9])
+    for (let i = 220; i < 230; i++) {
+      cells[i].classList.remove('div')
+      cells[i].classList.add('topandbottom')
     }
-    console.log(leftEdgeArray)
-    console.log(rightEdgeArray)
-    console.log(rowArray[19])
   }
   
   // * Setting tetrimino shapes and rotation data
 
   const oShape = {
     name: 'o',
-    startingPosition: [1, 2, 11, 12]
+    startingPosition: [4, 5, 14, 15]
   }
   const jShape = {
     name: 'j',
-    startingPosition: [0, 10, 11, 12],
+    startingPosition: [3, 13, 14, 15],
     rotation90: [2, -9, 0, 9],
     rotation180: [20, 11, 0, -11],
     rotation270: [-2, 9, 0, -9],
@@ -64,7 +63,7 @@ function init() {
   }
   const lShape = {
     name: 'l',
-    startingPosition: [2, 10, 11, 12],
+    startingPosition: [5, 13, 14, 15],
     rotation90: [20, -9, 0, 9],
     rotation180: [-2, 11, 0, -11],
     rotation270: [-20, 9, 0, -9],
@@ -72,7 +71,7 @@ function init() {
   }
   const sShape = {
     name: 's',
-    startingPosition: [1, 2, 10, 11],
+    startingPosition: [4, 5, 13, 14],
     rotation90: [11, 20, -9, 0],
     rotation180: [9, -2, 11, 0],
     rotation270: [-11, -20, 9, 0],
@@ -80,7 +79,7 @@ function init() {
   }
   const tShape = {
     name: 't',
-    startingPosition: [1, 10, 11, 12],
+    startingPosition: [4, 13, 14, 15],
     rotation90: [11, -9, 0, 9],
     rotation180: [9, 11, 0, -11],
     rotation270: [-11, 9, 0, -9],
@@ -88,7 +87,7 @@ function init() {
   }
   const iShape = {
     name: 'i',
-    startingPosition: [10, 11, 12, 13],
+    startingPosition: [13, 14, 15, 16],
     rotation90: [-8, 1, 10, 19],
     rotation180: [21, 10, -1, -12],
     rotation270: [8, -1, -10, -19],
@@ -96,7 +95,7 @@ function init() {
   }
   const zShape = {
     name: 'z',
-    startingPosition: [0, 1, 11, 12],
+    startingPosition: [3, 4, 14, 15],
     rotation90: [2, 11, 0, 9],
     rotation180: [20, 9, 0, -11],
     rotation270: [-2, -11, 0, -9],
@@ -118,43 +117,111 @@ function init() {
     console.log(currentTetrimino)
   }
   
+  // * Tetrimino movement check functions
+
+  function bottomCheck() {
+    if (playerTetriminoPosition.some(pos => pos > 219)) {
+      return true
+    } else return false
+  }
+
+  function occupiedCheck() {
+    if (playerTetriminoPosition.some(pos => cells[pos].classList.contains('fixedtetrimino'))) {
+      return true
+    } else return false
+  }
+
+  // * Tetrimino Functions
+
+  function removeTetrimino() {
+    return playerTetriminoPosition.forEach(cell => {
+      cells[cell].classList.remove('playertetrimino')
+    })
+  }
+
+  function drawPlayerTetrimino() {
+    playerTetriminoPosition.forEach(cell => {
+      cells[cell].classList.add('playertetrimino')
+    })
+  }
+
+  function fixDroppedTetrimino() {
+    removeTetrimino()
+    playerTetriminoPosition.forEach(cell => {
+      cells[cell].classList.add('fixedtetrimino')
+    })
+    playerTetriminoPosition = []
+    createTetrimino()
+    gameOver()
+  }
+
+  function revertVerticalPos() {
+    for (let i = 0; i < playerTetriminoPosition.length; i++) {
+      playerTetriminoPosition[i] = playerTetriminoPosition[i] - 10
+    }
+  }
+
+  function moveDown() {
+    for (let i = 0; i < playerTetriminoPosition.length; i++) {
+      playerTetriminoPosition[i] = playerTetriminoPosition[i] + 10
+    }
+  }
+
+  function moveRight() {
+    for (let i = 0; i < playerTetriminoPosition.length; i++) {
+      playerTetriminoPosition[i] = playerTetriminoPosition[i] + 1
+    }
+  }
+
+  function moveLeft() {
+    for (let i = 0; i < playerTetriminoPosition.length; i++) {
+      playerTetriminoPosition[i] = playerTetriminoPosition[i] - 1
+    }
+  }
+
+  // * Line Check Functions
+
+
+
   // * Horizontal and Downward Movement Control
 
   function handleKeyDown(event) {
-    playerTetriminoPosition.forEach(cell => {
-      cells[cell].classList.remove('playertetrimino')
-    })
+    removeTetrimino()
     switch (event.keyCode) { //
       case 39: // * Moving right
-        for (let i = 0; i < playerTetriminoPosition.length; i++) {
-          playerTetriminoPosition[i] = playerTetriminoPosition[i] + 1
+        moveRight()
+        if (occupiedCheck()) {
+          moveLeft()
         }
+        drawPlayerTetrimino()
         break
       case 37: // * Moving left
-        for (let i = 0; i < playerTetriminoPosition.length; i++) {
-          playerTetriminoPosition[i] = playerTetriminoPosition[i] - 1
+        moveLeft()
+        if (occupiedCheck()) {
+          moveRight()
         }
+        drawPlayerTetrimino()
         break
       case 40: // * Moving down
-
-        for (let i = 0; i < playerTetriminoPosition.length; i++) {
-          playerTetriminoPosition[i] = playerTetriminoPosition[i] + 10
-        }                
+        moveDown()
+        if (bottomCheck()) {
+          revertVerticalPos()
+          fixDroppedTetrimino()
+        } else if (occupiedCheck()) {
+          revertVerticalPos()
+          fixDroppedTetrimino()
+        } else drawPlayerTetrimino()
+        gameOver()          
         break
       default:
         console.log('invalid key do nothing')
     }
-    playerTetriminoPosition.forEach(cell => {
-      cells[cell].classList.add('playertetrimino')
-    })
   }
   
   // * Rotation Control
 
   function handleRotation(event) {
-    playerTetriminoPosition.forEach(cell => {
-      cells[cell].classList.remove('playertetrimino')
-    })
+    removeTetrimino()
     switch (event.keyCode) { //
       case 38:
         if (currentTetrimino === 'j') {
@@ -287,41 +354,36 @@ function init() {
       default:
         console.log('invalid key do nothing')
     }
-    playerTetriminoPosition.forEach(cell => {
-      cells[cell].classList.add('playertetrimino')
-    })
+    drawPlayerTetrimino()
   }
-
-  // * Check functions
-
-
-  function fixBlocks() {
-    playerTetriminoPosition.forEach(cell => {
-      cells[cell].classList.remove('playertetrimino')
-      cells[cell].classList.add('fixedtetrimino')
-    })
-    console.log('can you hear me')
-  }
-
 
   // * Tetrimino Automatic Movement
 
   const falling = setInterval(() => {
     timer++
-    playerTetriminoPosition.forEach(cell => {
-      cells[cell].classList.remove('playertetrimino')
-    })
-    for (let i = 0; i < playerTetriminoPosition.length; i++) {
-      playerTetriminoPosition[i] = playerTetriminoPosition[i] + 10
+    removeTetrimino()
+    moveDown()
+    if (bottomCheck()) {
+      revertVerticalPos()
+      fixDroppedTetrimino()
+    } else if (occupiedCheck()) {
+      revertVerticalPos()
+      fixDroppedTetrimino()
+    } else {
+      drawPlayerTetrimino()
+      gameOver()
     }
-    playerTetriminoPosition.forEach(cell => {
-      cells[cell].classList.add('playertetrimino')
-    })
-    if (timer >= 5) {
+    if (timer >= 500) {
       clearInterval(falling)
     }
-    playerTetriminoPosition.some(position => position >= 200) ? fixBlocks() : console.log('funtime')      
-  }, 1000)
+  }, 200)
+
+  function gameOver() {
+    if (playerTetriminoPosition.some(pos => pos < 20) && (playerTetriminoPosition.some(pos => cells[pos].classList.contains('fixedtetrimino')))) {
+      window.alert('ya fucked it')
+      clearInterval(falling)
+    }
+  }
 
   createGrid()
 
