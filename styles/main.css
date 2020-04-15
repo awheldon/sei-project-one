@@ -37,6 +37,6 @@ body {
   background-color: aqua;
 }
 
-.grid div.droppedtetrimino {
+.grid div.fixedtetrimino {
   background-color: black;
 }

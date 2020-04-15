@@ -12,10 +12,17 @@ function init() {
   // * Grid variables
   const width = 10
   const height = 20
+  
+  // * Attempting to create array of rows, and columns of left/right edge
+
+  let rowArray = []
+  let leftEdgeArray = []
+  let rightEdgeArray = []
 
   // * Game variables
   let playerTetriminoPosition = []
   let currentTetrimino = ''
+  let timer = 0
 
 
   // * Function to create the grid
@@ -24,8 +31,21 @@ function init() {
     for (let i = 0; i < width * height; i++) {
       const cell = document.createElement('div')
       grid.appendChild(cell)
+      cell.textContent = i
       cells.push(cell)
     }
+    for (let i = 0; i < 20; i++) {
+      rowArray.push(cells.slice(i * 10, ((i * 10) + 10)))
+    }
+    for (let i = 0; i < 20; i++) {
+      leftEdgeArray.push(cells[i * 10])
+    }
+    for (let i = 0; i < 20; i++) {
+      rightEdgeArray.push(cells[(i * 10) + 9])
+    }
+    console.log(leftEdgeArray)
+    console.log(rightEdgeArray)
+    console.log(rowArray[19])
   }
   
   // * Setting tetrimino shapes and rotation data
@@ -116,6 +136,7 @@ function init() {
         }
         break
       case 40: // * Moving down
+
         for (let i = 0; i < playerTetriminoPosition.length; i++) {
           playerTetriminoPosition[i] = playerTetriminoPosition[i] + 10
         }                
@@ -271,6 +292,36 @@ function init() {
     })
   }
 
+  // * Check functions
+
+
+  function fixBlocks() {
+    playerTetriminoPosition.forEach(cell => {
+      cells[cell].classList.remove('playertetrimino')
+      cells[cell].classList.add('fixedtetrimino')
+    })
+    console.log('can you hear me')
+  }
+
+
+  // * Tetrimino Automatic Movement
+
+  const falling = setInterval(() => {
+    timer++
+    playerTetriminoPosition.forEach(cell => {
+      cells[cell].classList.remove('playertetrimino')
+    })
+    for (let i = 0; i < playerTetriminoPosition.length; i++) {
+      playerTetriminoPosition[i] = playerTetriminoPosition[i] + 10
+    }
+    playerTetriminoPosition.forEach(cell => {
+      cells[cell].classList.add('playertetrimino')
+    })
+    if (timer >= 5) {
+      clearInterval(falling)
+    }
+    playerTetriminoPosition.some(position => position >= 200) ? fixBlocks() : console.log('funtime')      
+  }, 1000)
 
   createGrid()
 
