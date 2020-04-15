@@ -16,7 +16,6 @@ function init() {
   // * Arrays for checks
 
   let rowArray = []
-  let blockedArray = []
   let rowToClear = []
 
   // * Game variables
@@ -34,7 +33,7 @@ function init() {
       cells.push(cell)
       cell.textContent = i
     }
-    for (let i = 0; i < 20; i++) {
+    for (let i = 2; i < 22; i++) {
       rowArray.push(cells.slice(i * 10, ((i * 10) + 10)))
     }
     for (let i = 0; i < 20; i++) {
@@ -150,6 +149,7 @@ function init() {
     playerTetriminoPosition.forEach(cell => {
       cells[cell].classList.add('fixedtetrimino')
     })
+    isLineFull()
     playerTetriminoPosition = []
     createTetrimino()
     gameOver()
@@ -181,7 +181,26 @@ function init() {
 
   // * Line Check Functions
 
+  function isLineFull() {
+    for (let i = 0; i < rowArray.length; i++) {
+      for (let j = 0; j < rowArray[i].length; j++) {
+        if (rowArray[i].every(div => div.classList.contains('fixedtetrimino'))) {
+          rowToClear.push(rowArray[i][j])
+          console.log(rowToClear)
+        }
+      }
+    }
+    clearRow()
+  }
 
+  function clearRow() {
+    rowToClear.forEach(cell => {
+      cell.classList.remove('fixedtetrimino')
+    })
+  }
+  
+
+  // * Line clear function
 
   // * Horizontal and Downward Movement Control
 
