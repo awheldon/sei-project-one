@@ -47,3 +47,7 @@ body {
 .grid div.fixedtetrimino {
   background-color: black;
 }
+
+.grid div.dropping {
+  background-color: none;
+}

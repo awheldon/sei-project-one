@@ -17,6 +17,7 @@ function init() {
 
   let rowArray = []
   let rowToClear = []
+  let numClearRows = 0
 
   // * Game variables
   let playerTetriminoPosition = []
@@ -107,6 +108,7 @@ function init() {
 
   function createTetrimino() {
     let nextShape = []
+    playerTetriminoPosition = []
     nextShape = tetriminos[Math.floor(Math.random() * (tetriminos.length))]
     nextShape.startingPosition.forEach(cell => {
       cells[cell].classList.add('playertetrimino')
@@ -150,7 +152,7 @@ function init() {
       cells[cell].classList.add('fixedtetrimino')
     })
     isLineFull()
-    playerTetriminoPosition = []
+    dropLines()
     createTetrimino()
     gameOver()
   }
@@ -197,8 +199,27 @@ function init() {
     rowToClear.forEach(cell => {
       cell.classList.remove('fixedtetrimino')
     })
+    numClearRows = rowToClear.length
+    rowToClear = []
   }
   
+  function dropLines() {
+    if (numClearRows > 0) {
+      for (let i = 0; i < cells.length; i++) {
+        if (cells[i].classList.contains('fixedtetrimino')) {
+          cells[i].classList.remove('fixedtetrimino')
+          cells[i + numClearRows].classList.add('dropping')
+        }
+      }
+      for (let i = 0; i < cells.length; i++) {
+        if (cells[i].classList.contains('dropping')) {
+          cells[i].classList.remove('dropping')
+          cells[i].classList.add('fixedtetrimino')
+        }
+      }
+      console.log('Im running')  
+    } numClearRows = 0
+  }
 
   // * Line clear function
 
@@ -382,10 +403,7 @@ function init() {
     timer++
     removeTetrimino()
     moveDown()
-    if (bottomCheck()) {
-      revertVerticalPos()
-      fixDroppedTetrimino()
-    } else if (occupiedCheck()) {
+    if (bottomCheck() || occupiedCheck()) {
       revertVerticalPos()
       fixDroppedTetrimino()
     } else {
