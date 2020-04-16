@@ -17,6 +17,7 @@ function init() {
 
   let rowArray = []
   let rowToClear = []
+  let cellToDropFrom = 0
   let numClearRows = 0
 
   // * Game variables
@@ -200,7 +201,10 @@ function init() {
       for (let j = 0; j < rowArray[i].length; j++) {
         if (rowArray[i].every(div => div.classList.contains('fixedtetrimino'))) {
           rowToClear.push(rowArray[i][j])
-          console.log(rowToClear)
+          if (cellToDropFrom === 0) {
+            cellToDropFrom = ((i + 1) * 10) + 10 
+            console.log(cellToDropFrom)
+          }
         }
       }
     }
@@ -212,12 +216,13 @@ function init() {
       cell.classList.remove('fixedtetrimino')
     })
     numClearRows = rowToClear.length
+    console.log(numClearRows)
     rowToClear = []
   }
-  
+
   function dropLines() {
     if (numClearRows > 0) {
-      for (let i = 0; i < cells.length; i++) {
+      for (let i = 0; i < cellToDropFrom; i++) {
         if (cells[i].classList.contains('fixedtetrimino')) {
           cells[i].classList.remove('fixedtetrimino')
           cells[i + numClearRows].classList.add('dropping')
@@ -229,9 +234,30 @@ function init() {
           cells[i].classList.add('fixedtetrimino')
         }
       }
-      console.log('Im running')  
     } numClearRows = 0
+    cellToDropFrom = 0
   }
+
+  // function dropLines() {
+  //   if (numClearRows > 0) {
+  //     for (let i = rowToDropFrom; i > rowArray.length; i--) {
+  //       console.log('running')
+  //       for (let j = 0; j < rowArray[i].length; j++) {
+  //         if (rowArray[i][j].classList.contains('fixedtetrimino')) {
+  //           rowArray[i][j].classList.remove('fixedtetrimino')
+  //           rowArray[i + numClearRows][j].classList.add('dropping')
+  //           console.log('Im running')
+  //         }
+  //       } 
+  //       for (let j = 0; i < rowArray[i].length; j++) {
+  //         if (rowArray[i][j].classList.contains('dropping')) {
+  //           rowArray[i][j].classList.remove('dropping')
+  //           rowArray[i][j].classList.add('fixedtetrimino')
+  //         }
+  //       }
+  //     } numClearRows = 0
+  //   }
+  // }
 
   // * Line clear function
 
