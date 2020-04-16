@@ -126,6 +126,18 @@ function init() {
     } else return false
   }
 
+  function leftCheck() {
+    if (playerTetriminoPosition.some(pos => (pos + 1) % 10 === 0)) {
+      return true
+    } else return false
+  }
+
+  function rightCheck() {
+    if (playerTetriminoPosition.some(pos => pos % 10 === 0)) {
+      return true
+    } else return false
+  }
+
   function occupiedCheck() {
     if (playerTetriminoPosition.some(pos => cells[pos].classList.contains('fixedtetrimino'))) {
       return true
@@ -233,11 +245,17 @@ function init() {
         if (occupiedCheck()) {
           moveLeft()
         }
+        if (rightCheck()) {
+          moveLeft()
+        }
         drawPlayerTetrimino()
         break
       case 37: // * Moving left
         moveLeft()
         if (occupiedCheck()) {
+          moveRight()
+        }
+        if (leftCheck()) {
           moveRight()
         }
         drawPlayerTetrimino()
