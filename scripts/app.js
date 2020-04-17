@@ -213,9 +213,9 @@ function init() {
   }
 
   function updateScore() {
-    if (numClearRows === 40) {
-      console.log('Im running')
-    }
+    // if (numClearRows === 40) {
+    //   console.log('Im running')
+    // }
     score = score + (numClearRows * 100)
     scoreCounter.innerHTML = score
   }
@@ -229,7 +229,6 @@ function init() {
           rowToClear.push(rowArray[i][j])
           if (cellToDropFrom === 0) {
             cellToDropFrom = ((i + 1) * 10) + 10 
-            console.log(cellToDropFrom)
           }
         }
       }
@@ -354,7 +353,6 @@ function init() {
         music.muted = !music.muted
         break           
       default:
-        console.log('invalid key do nothing')
     }
   }
   
