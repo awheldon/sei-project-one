@@ -520,9 +520,9 @@ function init() {
 
   function gameOver() {
     if (playerTetriminoPosition.some(pos => pos < 20) && (playerTetriminoPosition.some(pos => cells[pos].classList.contains('fixedtetrimino')))) {
-      window.alert('You lost with a score of ' + score + ' Reload the page to play again!')
       music.pause()
       clearInterval(falling)
+      window.alert('You lost with a score of ' + score + ' Reload the page to play again!')
     }
   }
 
