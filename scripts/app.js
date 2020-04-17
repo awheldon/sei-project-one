@@ -7,6 +7,13 @@ function init() {
   // * DOM Elements
   const grid = document.querySelector('.grid')
   const cells = []
+  const level = document.querySelector('#level')
+  const lines = document.querySelector('#lines')
+  const scoreCounter = document.querySelector('#score')
+  const music = document.querySelector('#music')
+  const dropFx = document.querySelector('#drop')
+  const clearFx = document.querySelector('#clear')
+  const gameOverFx = document.querySelector('#gameover')
 
 
   // * Grid variables
@@ -15,7 +22,7 @@ function init() {
   
   // * Arrays for checks
 
-  let rowArray = []
+  const rowArray = []
   let rowToClear = []
   let cellToDropFrom = 0
   let numClearRows = 0
@@ -23,7 +30,12 @@ function init() {
   // * Game variables
   let playerTetriminoPosition = []
   let currentTetrimino = ''
-  let timer = 0
+  let linesCleared = 0
+  let score = 0
+  let dropSpeed = 1000
+  let falling
+  let nextShape = []
+  let gameStatus = false
 
 
   // * Function to create the grid
@@ -33,18 +45,21 @@ function init() {
       const cell = document.createElement('div')
       grid.appendChild(cell)
       cells.push(cell)
-      cell.textContent = i
     }
     for (let i = 2; i < 22; i++) {
       rowArray.push(cells.slice(i * 10, ((i * 10) + 10)))
     }
     for (let i = 0; i < 20; i++) {
       cells[i].classList.remove('div')
-      cells[i].classList.add('topandbottom')
+      cells[i].classList.add('top')
+    }
+    for (let i = 10; i < 20; i++) {
+      cells[i].classList.remove('top')
+      cells[i].classList.add('topline')
     }
     for (let i = 220; i < 230; i++) {
       cells[i].classList.remove('div')
-      cells[i].classList.add('topandbottom')
+      cells[i].classList.add('bottom')
     }
   }
   
@@ -108,15 +123,15 @@ function init() {
   // * Creating tetriminos
 
   function createTetrimino() {
-    let nextShape = []
     playerTetriminoPosition = []
     nextShape = tetriminos[Math.floor(Math.random() * (tetriminos.length))]
     nextShape.startingPosition.forEach(cell => {
       cells[cell].classList.add('playertetrimino')
+      cells[cell].classList.add(nextShape.name)
       playerTetriminoPosition.push(cell)
     })
     currentTetrimino = nextShape.name
-    console.log(currentTetrimino)
+    falling = setInterval(autoMove, dropSpeed)
   }
   
   // * Tetrimino movement check functions
@@ -143,19 +158,21 @@ function init() {
     if (playerTetriminoPosition.some(pos => cells[pos].classList.contains('fixedtetrimino'))) {
       return true
     } else return false
-  }
+  }    
 
   // * Tetrimino Functions
 
   function removeTetrimino() {
     return playerTetriminoPosition.forEach(cell => {
       cells[cell].classList.remove('playertetrimino')
+      cells[cell].classList.remove(nextShape.name)
     })
   }
 
   function drawPlayerTetrimino() {
     playerTetriminoPosition.forEach(cell => {
       cells[cell].classList.add('playertetrimino')
+      cells[cell].classList.add(nextShape.name)
     })
   }
 
@@ -166,6 +183,7 @@ function init() {
     })
     isLineFull()
     dropLines()
+    clearInterval(falling)
     createTetrimino()
     gameOver()
   }
@@ -194,7 +212,15 @@ function init() {
     }
   }
 
-  // * Line Check Functions
+  function updateScore() {
+    if (numClearRows === 40) {
+      console.log('Im running')
+    }
+    score = score + (numClearRows * 100)
+    scoreCounter.innerHTML = score
+  }
+
+  // * Line Check and Clearing Functions
 
   function isLineFull() {
     for (let i = 0; i < rowArray.length; i++) {
@@ -216,7 +242,10 @@ function init() {
       cell.classList.remove('fixedtetrimino')
     })
     numClearRows = rowToClear.length
-    console.log(numClearRows)
+    linesCleared = linesCleared + (numClearRows / 10)
+    lines.innerHTML = linesCleared
+    updateScore()
+    updateLevel()
     rowToClear = []
   }
 
@@ -238,28 +267,41 @@ function init() {
     cellToDropFrom = 0
   }
 
-  // function dropLines() {
-  //   if (numClearRows > 0) {
-  //     for (let i = rowToDropFrom; i > rowArray.length; i--) {
-  //       console.log('running')
-  //       for (let j = 0; j < rowArray[i].length; j++) {
-  //         if (rowArray[i][j].classList.contains('fixedtetrimino')) {
-  //           rowArray[i][j].classList.remove('fixedtetrimino')
-  //           rowArray[i + numClearRows][j].classList.add('dropping')
-  //           console.log('Im running')
-  //         }
-  //       } 
-  //       for (let j = 0; i < rowArray[i].length; j++) {
-  //         if (rowArray[i][j].classList.contains('dropping')) {
-  //           rowArray[i][j].classList.remove('dropping')
-  //           rowArray[i][j].classList.add('fixedtetrimino')
-  //         }
-  //       }
-  //     } numClearRows = 0
-  //   }
-  // }
+  // * Level Function
 
-  // * Line clear function
+  function updateLevel () {
+    if (linesCleared < 5) {
+      dropSpeed = 1000
+      level.textContent = 1
+    } else if (linesCleared < 10) {
+      dropSpeed = 800
+      level.textContent = 2
+    } else if (linesCleared < 15) {
+      dropSpeed = 650
+      level.textContent = 3
+    } else if (linesCleared < 20) {
+      dropSpeed = 500
+      level.textContent = 4
+    } else if (linesCleared < 25) {
+      dropSpeed = 400
+      level.textContent = 5
+    } else if (linesCleared < 30) {
+      dropSpeed = 300
+      level.textContent = 6
+    } else if (linesCleared < 35) {
+      dropSpeed = 250
+      level.textContent = 7
+    } else if (linesCleared < 40) {
+      dropSpeed = 200
+      level.textContent = 8
+    } else if (linesCleared < 45) {
+      dropSpeed = 150
+      level.textContent = 9
+    } else if (linesCleared < 50) {
+      dropSpeed = 100
+      level.textContent = 10
+    }
+  }
 
   // * Horizontal and Downward Movement Control
 
@@ -294,9 +336,20 @@ function init() {
         } else if (occupiedCheck()) {
           revertVerticalPos()
           fixDroppedTetrimino()
-        } else drawPlayerTetrimino()
-        gameOver()          
+        } else {
+          score = score + 10
+          updateScore()
+          drawPlayerTetrimino()
+        }
+        gameOver()
         break
+      case 32:
+        if (gameStatus === false) {
+          createTetrimino()
+          music.play()
+          gameStatus = true
+        }
+        break          
       default:
         console.log('invalid key do nothing')
     }
@@ -308,143 +361,152 @@ function init() {
     removeTetrimino()
     switch (event.keyCode) { //
       case 38:
-        if (currentTetrimino === 'j') {
-          for (let i = 0; i < playerTetriminoPosition.length; i++) {
-            playerTetriminoPosition[i] = playerTetriminoPosition[i] + jShape.rotation90[i]
+        if (leftCheck() || rightCheck() || occupiedCheck()) {
+          console.log('rotation stopped')
+        } else {
+          if (currentTetrimino === 'j') {
+            for (let i = 0; i < playerTetriminoPosition.length; i++) {
+              playerTetriminoPosition[i] = playerTetriminoPosition[i] + jShape.rotation90[i]
+            }
+            currentTetrimino = 'j90'
+          } else if (currentTetrimino === 'j90') {
+            for (let i = 0; i < playerTetriminoPosition.length; i++) {
+              playerTetriminoPosition[i] = playerTetriminoPosition[i] + jShape.rotation180[i]
+            }
+            currentTetrimino = 'j180'
+          } else if (currentTetrimino === 'j180') {
+            for (let i = 0; i < playerTetriminoPosition.length; i++) {
+              playerTetriminoPosition[i] = playerTetriminoPosition[i] + jShape.rotation270[i]
+            }
+            currentTetrimino = 'j270'
+          } else if (currentTetrimino === 'j270') {
+            for (let i = 0; i < playerTetriminoPosition.length; i++) {
+              playerTetriminoPosition[i] = playerTetriminoPosition[i] + jShape.rotation360[i]
+            }
+            currentTetrimino = 'j'
           }
-          currentTetrimino = 'j90'
-        } else if (currentTetrimino === 'j90') {
-          for (let i = 0; i < playerTetriminoPosition.length; i++) {
-            playerTetriminoPosition[i] = playerTetriminoPosition[i] + jShape.rotation180[i]
+          if (currentTetrimino === 'l') {
+            for (let i = 0; i < playerTetriminoPosition.length; i++) {
+              playerTetriminoPosition[i] = playerTetriminoPosition[i] + lShape.rotation90[i]
+            }
+            currentTetrimino = 'l90'
+          } else if (currentTetrimino === 'l90') {
+            for (let i = 0; i < playerTetriminoPosition.length; i++) {
+              playerTetriminoPosition[i] = playerTetriminoPosition[i] + lShape.rotation180[i]
+            }
+            currentTetrimino = 'l180'
+          } else if (currentTetrimino === 'l180') {
+            for (let i = 0; i < playerTetriminoPosition.length; i++) {
+              playerTetriminoPosition[i] = playerTetriminoPosition[i] + lShape.rotation270[i]
+            }
+            currentTetrimino = 'l270'
+          } else if (currentTetrimino === 'l270') {
+            for (let i = 0; i < playerTetriminoPosition.length; i++) {
+              playerTetriminoPosition[i] = playerTetriminoPosition[i] + lShape.rotation360[i]
+            }
+            currentTetrimino = 'l'
           }
-          currentTetrimino = 'j180'
-        } else if (currentTetrimino === 'j180') {
-          for (let i = 0; i < playerTetriminoPosition.length; i++) {
-            playerTetriminoPosition[i] = playerTetriminoPosition[i] + jShape.rotation270[i]
+          if (currentTetrimino === 's') {
+            for (let i = 0; i < playerTetriminoPosition.length; i++) {
+              playerTetriminoPosition[i] = playerTetriminoPosition[i] + sShape.rotation90[i]
+            }
+            currentTetrimino = 's90'
+          } else if (currentTetrimino === 's90') {
+            for (let i = 0; i < playerTetriminoPosition.length; i++) {
+              playerTetriminoPosition[i] = playerTetriminoPosition[i] + sShape.rotation180[i]
+            }
+            currentTetrimino = 's180'
+          } else if (currentTetrimino === 's180') {
+            for (let i = 0; i < playerTetriminoPosition.length; i++) {
+              playerTetriminoPosition[i] = playerTetriminoPosition[i] + sShape.rotation270[i]
+            }
+            currentTetrimino = 's270'
+          } else if (currentTetrimino === 's270') {
+            for (let i = 0; i < playerTetriminoPosition.length; i++) {
+              playerTetriminoPosition[i] = playerTetriminoPosition[i] + sShape.rotation360[i]
+            }
+            currentTetrimino = 's'
           }
-          currentTetrimino = 'j270'
-        } else if (currentTetrimino === 'j270') {
-          for (let i = 0; i < playerTetriminoPosition.length; i++) {
-            playerTetriminoPosition[i] = playerTetriminoPosition[i] + jShape.rotation360[i]
+          if (currentTetrimino === 't') {
+            for (let i = 0; i < playerTetriminoPosition.length; i++) {
+              playerTetriminoPosition[i] = playerTetriminoPosition[i] + tShape.rotation90[i]
+            }
+            currentTetrimino = 't90'
+          } else if (currentTetrimino === 't90') {
+            for (let i = 0; i < playerTetriminoPosition.length; i++) {
+              playerTetriminoPosition[i] = playerTetriminoPosition[i] + tShape.rotation180[i]
+            }
+            currentTetrimino = 't180'
+          } else if (currentTetrimino === 't180') {
+            for (let i = 0; i < playerTetriminoPosition.length; i++) {
+              playerTetriminoPosition[i] = playerTetriminoPosition[i] + tShape.rotation270[i]
+            }
+            currentTetrimino = 't270'
+          } else if (currentTetrimino === 't270') {
+            for (let i = 0; i < playerTetriminoPosition.length; i++) {
+              playerTetriminoPosition[i] = playerTetriminoPosition[i] + tShape.rotation360[i]
+            }
+            currentTetrimino = 't'
           }
-          currentTetrimino = 'j'
-        }
-        if (currentTetrimino === 'l') {
-          for (let i = 0; i < playerTetriminoPosition.length; i++) {
-            playerTetriminoPosition[i] = playerTetriminoPosition[i] + lShape.rotation90[i]
+          if (currentTetrimino === 'i') {
+            for (let i = 0; i < playerTetriminoPosition.length; i++) {
+              playerTetriminoPosition[i] = playerTetriminoPosition[i] + iShape.rotation90[i]
+            }
+            currentTetrimino = 'i90'
+          } else if (currentTetrimino === 'i90') {
+            for (let i = 0; i < playerTetriminoPosition.length; i++) {
+              playerTetriminoPosition[i] = playerTetriminoPosition[i] + iShape.rotation180[i]
+            }
+            currentTetrimino = 'i180'
+          } else if (currentTetrimino === 'i180') {
+            for (let i = 0; i < playerTetriminoPosition.length; i++) {
+              playerTetriminoPosition[i] = playerTetriminoPosition[i] + iShape.rotation270[i]
+            }
+            currentTetrimino = 'i270'
+          } else if (currentTetrimino === 'i270') {
+            for (let i = 0; i < playerTetriminoPosition.length; i++) {
+              playerTetriminoPosition[i] = playerTetriminoPosition[i] + iShape.rotation360[i]
+            }
+            currentTetrimino = 'i'
           }
-          currentTetrimino = 'l90'
-        } else if (currentTetrimino === 'l90') {
-          for (let i = 0; i < playerTetriminoPosition.length; i++) {
-            playerTetriminoPosition[i] = playerTetriminoPosition[i] + lShape.rotation180[i]
+          if (currentTetrimino === 'z') {
+            for (let i = 0; i < playerTetriminoPosition.length; i++) {
+              playerTetriminoPosition[i] = playerTetriminoPosition[i] + zShape.rotation90[i]
+            }
+            currentTetrimino = 'z90'
+          } else if (currentTetrimino === 'z90') {
+            for (let i = 0; i < playerTetriminoPosition.length; i++) {
+              playerTetriminoPosition[i] = playerTetriminoPosition[i] + zShape.rotation180[i]
+            }
+            currentTetrimino = 'z180'
+          } else if (currentTetrimino === 'z180') {
+            for (let i = 0; i < playerTetriminoPosition.length; i++) {
+              playerTetriminoPosition[i] = playerTetriminoPosition[i] + zShape.rotation270[i]
+            }
+            currentTetrimino = 'z270'
+          } else if (currentTetrimino === 'z270') {
+            for (let i = 0; i < playerTetriminoPosition.length; i++) {
+              playerTetriminoPosition[i] = playerTetriminoPosition[i] + zShape.rotation360[i]
+            }
+            currentTetrimino = 'z'
           }
-          currentTetrimino = 'l180'
-        } else if (currentTetrimino === 'l180') {
-          for (let i = 0; i < playerTetriminoPosition.length; i++) {
-            playerTetriminoPosition[i] = playerTetriminoPosition[i] + lShape.rotation270[i]
-          }
-          currentTetrimino = 'l270'
-        } else if (currentTetrimino === 'l270') {
-          for (let i = 0; i < playerTetriminoPosition.length; i++) {
-            playerTetriminoPosition[i] = playerTetriminoPosition[i] + lShape.rotation360[i]
-          }
-          currentTetrimino = 'l'
-        }
-        if (currentTetrimino === 's') {
-          for (let i = 0; i < playerTetriminoPosition.length; i++) {
-            playerTetriminoPosition[i] = playerTetriminoPosition[i] + sShape.rotation90[i]
-          }
-          currentTetrimino = 's90'
-        } else if (currentTetrimino === 's90') {
-          for (let i = 0; i < playerTetriminoPosition.length; i++) {
-            playerTetriminoPosition[i] = playerTetriminoPosition[i] + sShape.rotation180[i]
-          }
-          currentTetrimino = 's180'
-        } else if (currentTetrimino === 's180') {
-          for (let i = 0; i < playerTetriminoPosition.length; i++) {
-            playerTetriminoPosition[i] = playerTetriminoPosition[i] + sShape.rotation270[i]
-          }
-          currentTetrimino = 's270'
-        } else if (currentTetrimino === 's270') {
-          for (let i = 0; i < playerTetriminoPosition.length; i++) {
-            playerTetriminoPosition[i] = playerTetriminoPosition[i] + sShape.rotation360[i]
-          }
-          currentTetrimino = 's'
-        }
-        if (currentTetrimino === 't') {
-          for (let i = 0; i < playerTetriminoPosition.length; i++) {
-            playerTetriminoPosition[i] = playerTetriminoPosition[i] + tShape.rotation90[i]
-          }
-          currentTetrimino = 't90'
-        } else if (currentTetrimino === 't90') {
-          for (let i = 0; i < playerTetriminoPosition.length; i++) {
-            playerTetriminoPosition[i] = playerTetriminoPosition[i] + tShape.rotation180[i]
-          }
-          currentTetrimino = 't180'
-        } else if (currentTetrimino === 't180') {
-          for (let i = 0; i < playerTetriminoPosition.length; i++) {
-            playerTetriminoPosition[i] = playerTetriminoPosition[i] + tShape.rotation270[i]
-          }
-          currentTetrimino = 't270'
-        } else if (currentTetrimino === 't270') {
-          for (let i = 0; i < playerTetriminoPosition.length; i++) {
-            playerTetriminoPosition[i] = playerTetriminoPosition[i] + tShape.rotation360[i]
-          }
-          currentTetrimino = 't'
-        }
-        if (currentTetrimino === 'i') {
-          for (let i = 0; i < playerTetriminoPosition.length; i++) {
-            playerTetriminoPosition[i] = playerTetriminoPosition[i] + iShape.rotation90[i]
-          }
-          currentTetrimino = 'i90'
-        } else if (currentTetrimino === 'i90') {
-          for (let i = 0; i < playerTetriminoPosition.length; i++) {
-            playerTetriminoPosition[i] = playerTetriminoPosition[i] + iShape.rotation180[i]
-          }
-          currentTetrimino = 'i180'
-        } else if (currentTetrimino === 'i180') {
-          for (let i = 0; i < playerTetriminoPosition.length; i++) {
-            playerTetriminoPosition[i] = playerTetriminoPosition[i] + iShape.rotation270[i]
-          }
-          currentTetrimino = 'i270'
-        } else if (currentTetrimino === 'i270') {
-          for (let i = 0; i < playerTetriminoPosition.length; i++) {
-            playerTetriminoPosition[i] = playerTetriminoPosition[i] + iShape.rotation360[i]
-          }
-          currentTetrimino = 'i'
-        }
-        if (currentTetrimino === 'z') {
-          for (let i = 0; i < playerTetriminoPosition.length; i++) {
-            playerTetriminoPosition[i] = playerTetriminoPosition[i] + zShape.rotation90[i]
-          }
-          currentTetrimino = 'z90'
-        } else if (currentTetrimino === 'z90') {
-          for (let i = 0; i < playerTetriminoPosition.length; i++) {
-            playerTetriminoPosition[i] = playerTetriminoPosition[i] + zShape.rotation180[i]
-          }
-          currentTetrimino = 'z180'
-        } else if (currentTetrimino === 'z180') {
-          for (let i = 0; i < playerTetriminoPosition.length; i++) {
-            playerTetriminoPosition[i] = playerTetriminoPosition[i] + zShape.rotation270[i]
-          }
-          currentTetrimino = 'z270'
-        } else if (currentTetrimino === 'z270') {
-          for (let i = 0; i < playerTetriminoPosition.length; i++) {
-            playerTetriminoPosition[i] = playerTetriminoPosition[i] + zShape.rotation360[i]
-          }
-          currentTetrimino = 'z'
-        }                                                                
+        }                                                               
         break
       default:
         console.log('invalid key do nothing')
     }
     drawPlayerTetrimino()
   }
+  // * GameStart
+
+
+    
 
   // * Tetrimino Automatic Movement
 
-  const falling = setInterval(() => {
-    timer++
+
+  function autoMove() {
+    console.log(dropSpeed)
     removeTetrimino()
     moveDown()
     if (bottomCheck() || occupiedCheck()) {
@@ -454,21 +516,17 @@ function init() {
       drawPlayerTetrimino()
       gameOver()
     }
-    if (timer >= 500) {
-      clearInterval(falling)
-    }
-  }, 200)
+  }
 
   function gameOver() {
     if (playerTetriminoPosition.some(pos => pos < 20) && (playerTetriminoPosition.some(pos => cells[pos].classList.contains('fixedtetrimino')))) {
-      window.alert('ya fucked it')
+      window.alert('You lost with a score of ' + score + ' Reload the page to play again!')
+      music.pause()
       clearInterval(falling)
     }
   }
 
   createGrid()
-
-  createTetrimino()
 
   document.addEventListener('keydown', handleKeyDown)
   document.addEventListener('keydown', handleRotation)

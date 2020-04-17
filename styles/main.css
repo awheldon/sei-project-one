@@ -3,8 +3,15 @@
 }
 
 body {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-evenly;
   height: 100vh;
   margin: 0;
+  font-family: 'Space Mono', monospace;
+  background-image: url(../assets/stanley.jpg);
+  background-position: center;
 }
 
 
@@ -15,6 +22,16 @@ body {
   align-items: center;
 }
 
+p {
+  color: rgb(162, 43, 43);
+}
+
+.textcontainer {
+  padding: 80px;
+  width: 380px;
+  background-color: rgba(255, 255, 255, 0.844);
+}
+
 .grid {
   align-items: center;
   box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2);
@@ -22,32 +39,93 @@ body {
   flex-wrap: wrap;
   height: 100%;
   justify-content: center;
-  height: 880px;
-  width: 400px;
+  height: 660px;
+  width: 300px;
 }
 
 .grid div {
-  border: 1px solid lightgrey;
   flex-grow: 1;
-  height: 40px;
-  width: 40px;
+  height: 30px;
+  width: 30px;
+  background-color: rgba(255, 255, 255, 0.468);
 }
 
-.grid div.topandbottom {
-  border: none;
+.grid div.top {
   flex-grow: 1;
-  height: 40px;
-  width: 40px;
+  height: 30px;
+  width: 30px;
+}
+
+.grid div.topline {
+  flex-grow: 1;
+  height: 30px;
+  width: 30px;
+  border-bottom: 1px solid black;
+}
+
+.grid div.bottom {
+  flex-grow: 1;
+  height: 30px;
+  width: 30px;
+  background-color: transparent;
 }
 
 .grid div.playertetrimino {
-  background-color: aqua;
+  background-color: none;
 }
 
 .grid div.fixedtetrimino {
-  background-color: black;
+  background-color: grey;
+  border: 1px solid lightgrey;
 }
 
 .grid div.dropping {
   background-color: none;
+}
+
+#level {
+  font-weight: 700;
+}
+
+#score {
+  font-weight: 700;
+}
+
+#lines {
+  font-weight: 700;
+}
+
+.grid div.t {
+  background-color: purple;
+  border: 1px solid lightgrey;
+}
+
+.grid div.j {
+  background-color: blue;
+  border: 1px solid lightgrey;
+}
+
+.grid div.z {
+  background-color: red;
+  border: 1px solid lightgrey;
+}
+
+.grid div.o {
+  background-color: yellow;
+  border: 1px solid lightgrey;
+}
+
+.grid div.s {
+  background-color: green;
+  border: 1px solid lightgrey;
+}
+
+.grid div.l {
+  background-color: orange;
+  border: 1px solid lightgrey;
+}
+
+.grid div.i {
+  background-color: cyan;
+  border: 1px solid lightgrey;
 }
