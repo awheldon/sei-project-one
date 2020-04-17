@@ -349,7 +349,10 @@ function init() {
           music.play()
           gameStatus = true
         }
-        break          
+        break
+      case 77:
+        music.muted = !music.muted
+        break           
       default:
         console.log('invalid key do nothing')
     }
