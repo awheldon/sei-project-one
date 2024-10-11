@@ -137,10 +137,8 @@ function init() {
 
   // * Tetrimino movement check functions
 
-  function bottomCheck() {
-    if (playerTetriminoPosition.some((pos) => pos > 219)) {
-      return true;
-    } else return false;
+  function bottomCheck(position = playerTetriminoPosition) {
+    return position.some((pos) => pos > 219);
   }
 
   function leftCheck() {
@@ -155,29 +153,44 @@ function init() {
     } else return false;
   }
 
-  function occupiedCheck() {
-    if (
-      playerTetriminoPosition.some((pos) =>
-        cells[pos].classList.contains('fixedtetrimino')
-      )
-    ) {
-      return true;
-    } else return false;
+  function occupiedCheck(position = playerTetriminoPosition) {
+    return position.some((pos) => cells[pos].classList.contains('fixedtetrimino'));
+  }
+
+  function calculateGhostPosition() {
+    const ghostPosition = [...playerTetriminoPosition];
+    while (!bottomCheck(ghostPosition) && !occupiedCheck(ghostPosition)) {
+      ghostPosition.forEach((pos, index) => {
+        ghostPosition[index] = pos + 10;
+      });
+    }
+    ghostPosition.forEach((pos, index) => {
+      ghostPosition[index] = pos - 10;
+    });
+    return ghostPosition;
   }
 
   // * Tetrimino Functions
 
   function removeTetrimino() {
-    return playerTetriminoPosition.forEach((cell) => {
+    playerTetriminoPosition.forEach((cell) => {
       cells[cell].classList.remove('playertetrimino');
       cells[cell].classList.remove(nextShape.name);
     });
+    cells.forEach(cell => cell.classList.remove('ghost'));
   }
 
   function drawPlayerTetrimino() {
     playerTetriminoPosition.forEach((cell) => {
       cells[cell].classList.add('playertetrimino');
       cells[cell].classList.add(nextShape.name);
+    });
+  
+    const ghostPosition = calculateGhostPosition();
+    ghostPosition.forEach((cell) => {
+      if (!cells[cell].classList.contains('playertetrimino')) {
+        cells[cell].classList.add('ghost');
+      }
     });
   }
 
@@ -276,6 +289,13 @@ function init() {
     cellToDropFrom = 0;
   }
 
+  function instantDrop() {
+    removeTetrimino();
+    const ghostPosition = calculateGhostPosition();
+    playerTetriminoPosition = ghostPosition;
+    fixDroppedTetrimino();
+  }
+
   // * Level Function
 
   function updateLevel() {
@@ -358,6 +378,8 @@ function init() {
         if (gameStatus === false) {
           createTetrimino();
           gameStatus = true;
+        } else {
+          instantDrop();
         }
         break;
       case 77:
@@ -540,7 +562,7 @@ function init() {
   // * Tetrimino Automatic Movement
 
   function autoMove() {
-    console.log(dropSpeed);
+    // console.log(dropSpeed);
     removeTetrimino();
     moveDown();
     if (bottomCheck() || occupiedCheck()) {
