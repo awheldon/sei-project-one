@@ -170,6 +170,12 @@ function init() {
     return ghostPosition;
   }
 
+  function calculateDropDistance(startPosition, endPosition) {
+    const startRow = Math.floor(startPosition[0] / width);
+    const endRow = Math.floor(endPosition[0] / width);
+    return endRow - startRow;
+  }
+
   // * Tetrimino Functions
 
   function removeTetrimino() {
@@ -291,9 +297,14 @@ function init() {
 
   function instantDrop() {
     removeTetrimino();
+    const startPosition = [...playerTetriminoPosition];
     const ghostPosition = calculateGhostPosition();
+    const dropDistance = calculateDropDistance(startPosition, ghostPosition);
+    score += dropDistance * 2;
+    
     playerTetriminoPosition = ghostPosition;
     fixDroppedTetrimino();
+    updateScore();
   }
 
   // * Level Function
